@@ -1,0 +1,30 @@
+---
+- name: Docker | Add Docker GPG apt Key
+  become: yes
+  ansible.builtin.apt_key:
+    url: "{{ docker_apt_key_url }}"
+    state: present
+
+- name: Docker | Add repository into sources list
+  become: yes
+  ansible.builtin.apt_repository:
+    repo: "{{ docker_apt_repo }}"
+    state: present
+    filename: docker
+
+- name: Docker | Install Docker
+  become: yes
+  ansible.builtin.apt:
+    name: "{{ docker_apt_packages }}"
+    state: present
+    update_cache: true
+
+- name: Docker | Add current user to group docker
+  become: yes
+  ansible.builtin.user:
+    name: pi
+    groups: docker
+    append: yes
+  notify:
+    - Restart containerd
+    - Restart docker
